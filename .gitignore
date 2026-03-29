@@ -1,0 +1,15 @@
+# General
+node_modules/
+.env
+.env.*
+*.log
+*.sqlite3
+db.sqlite3
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE files
+.vscode/
+.idea/
