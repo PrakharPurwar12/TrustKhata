@@ -26,7 +26,7 @@ const Register = () => {
               Create your TrustKhata account
             </h1>
 
-            <form className="mt-8 space-y-5">
+            <form className="mt-8 space-y-5" onSubmit={(e) => { e.preventDefault(); navigateWithTransition(navigate, '/onboarding'); }}>
               <div>
                 <label className="mb-2 block text-sm font-medium text-slate-700">Full name</label>
                 <input
