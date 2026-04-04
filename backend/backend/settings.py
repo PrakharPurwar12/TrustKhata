@@ -39,7 +39,9 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'corsheaders',
-    'api',
+    'users',
+    'customers',
+    'transactions',
 ]
 
 MIDDLEWARE = [
@@ -120,8 +122,13 @@ USE_TZ = True
 
 STATIC_URL = 'static/'
 
-# CORS Configuration
-CORS_ALLOW_ALL_ORIGINS = True
+# Frontend development origins. Tighten further per environment in production.
+CORS_ALLOWED_ORIGINS = [
+    'http://localhost:5173',
+    'http://127.0.0.1:5173',
+]
+
+CORS_ALLOW_CREDENTIALS = True
 
 # Default primary key field type
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
