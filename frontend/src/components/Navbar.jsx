@@ -1,59 +1,36 @@
-import React from 'react';
-import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
+import { Link } from 'react-router-dom';
 
-const Navbar = ({ menuOpen, onMenuToggle }) => {
-  const { user, logout } = useAuth();
-  const navigate = useNavigate();
-  const location = useLocation();
+const navLinks = [
+  { label: 'Home', href: '#home' },
+  { label: 'Features', href: '#features' },
+  { label: 'Contact', href: '#contact' },
+];
 
-  const handleLogout = () => {
-    logout();
-    navigate('/login');
-  };
-
-  const initials = user?.username?.slice(0, 2) || 'TK';
-  const showMenuButton = user && location.pathname !== '/login';
-
+const Navbar = () => {
   return (
-    <header className="topbar">
-      <Link className="topbar__brand" to={user ? '/dashboard' : '/login'}>
-        <span className="topbar__logo">TK</span>
-        <span className="topbar__meta">
-          <span className="topbar__title">TrustKhata</span>
-          <span className="topbar__subtitle">Udhar ko trust ke saath manage karo</span>
-        </span>
-      </Link>
+    <header className="sticky top-0 z-30 border-b border-slate-200/80 bg-white/90 text-slate-600 backdrop-blur">
+      <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4 lg:px-10">
+        <Link
+          to="/"
+          className="text-inherit text-xl font-bold tracking-tight text-slate-950 transition hover:text-emerald-600"
+        >
+          TrustKhata
+        </Link>
 
-      <div className="topbar__actions">
-        {showMenuButton ? (
-          <button
-            className="button button--secondary topbar__menu"
-            type="button"
-            onClick={onMenuToggle}
-          >
-            {menuOpen ? 'Close' : 'Menu'}
-          </button>
-        ) : null}
+        <nav className="hidden items-center gap-8 text-sm font-medium text-inherit md:flex">
+          {navLinks.map((link) => (
+            <a key={link.label} href={link.href} className="text-inherit transition hover:text-slate-950">
+              {link.label}
+            </a>
+          ))}
+        </nav>
 
-        {user ? (
-          <>
-            <div className="topbar__user">
-              <span className="topbar__user-text">
-                <span className="topbar__user-name">{user.username}</span>
-                <span className="topbar__user-role">Owner workspace</span>
-              </span>
-              <span className="topbar__avatar">{initials}</span>
-            </div>
-            <button className="button button--ghost" type="button" onClick={handleLogout}>
-              Logout
-            </button>
-          </>
-        ) : (
-          <Link className="button button--primary" to="/login">
-            Open workspace
-          </Link>
-        )}
+        <Link
+          to="/register"
+          className="rounded-full bg-emerald-600 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-emerald-700"
+        >
+          Get Started
+        </Link>
       </div>
     </header>
   );
