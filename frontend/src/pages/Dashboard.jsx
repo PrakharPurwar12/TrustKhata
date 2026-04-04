@@ -200,7 +200,7 @@ export default function Dashboard() {
                        <p className="text-sm text-slate-500">{customer.phone || 'No phone'}</p>
                      </div>
                    </div>
-                   <button className="text-emerald-600 font-medium hover:text-emerald-700">View Khata &rarr;</button>
+                   <Link to={`/customer/${customer.id}`} className="text-emerald-600 font-medium hover:text-emerald-700">View Khata &rarr;</Link>
                  </div>
               ))}
             </div>
@@ -219,7 +219,7 @@ export default function Dashboard() {
           
           <span className="hidden sm:inline-block sm:h-screen sm:align-middle">&#8203;</span>
           
-          <div className="inline-block px-4 pt-5 pb-4 overflow-hidden text-left align-bottom transition-all transform bg-white rounded-2xl shadow-2xl sm:my-8 sm:align-middle sm:max-w-md sm:w-full sm:p-6 w-full">
+          <div className="relative z-10 inline-block px-4 pt-5 pb-4 overflow-hidden text-left align-bottom transition-all transform bg-white rounded-2xl shadow-2xl sm:my-8 sm:align-middle sm:max-w-md sm:w-full sm:p-6 w-full">
             <div className="absolute top-0 right-0 pt-4 pr-4">
               <button 
                 type="button" 

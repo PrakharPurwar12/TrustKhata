@@ -1,10 +1,15 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { navigateWithTransition } from '../utils/navigateWithTransition';
+import api from '../services/api';
 
 const Register = () => {
   const navigate = useNavigate();
   const [showPage, setShowPage] = useState(false);
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [error, setError] = useState('');
 
   useEffect(() => {
     setShowPage(true);
@@ -26,7 +31,24 @@ const Register = () => {
               Create your TrustKhata account
             </h1>
 
-            <form className="mt-8 space-y-5" onSubmit={(e) => { e.preventDefault(); navigateWithTransition(navigate, '/onboarding'); }}>
+            <form 
+              className="mt-8 space-y-5" 
+              onSubmit={async (e) => { 
+                e.preventDefault(); 
+                setError('');
+                if (password !== confirmPassword) {
+                  setError('Passwords do not match');
+                  return;
+                }
+                try {
+                  await api.post('users/register/', { email, password });
+                  navigateWithTransition(navigate, '/onboarding');
+                } catch (err) {
+                  setError(err.response?.data?.error || 'Registration failed');
+                }
+              }}
+            >
+              {error && <div className="text-red-500 text-sm font-semibold">{error}</div>}
               <div>
                 <label className="mb-2 block text-sm font-medium text-slate-700">Full name</label>
                 <input
@@ -40,6 +62,8 @@ const Register = () => {
                 <label className="mb-2 block text-sm font-medium text-slate-700">Email</label>
                 <input
                   type="email"
+                  value={email}
+                  onChange={e => setEmail(e.target.value)}
                   placeholder="you@example.com"
                   className="w-full rounded-2xl border border-slate-200 px-4 py-3 outline-none transition focus:border-emerald-500"
                 />
@@ -52,6 +76,8 @@ const Register = () => {
                   </label>
                   <input
                     type="password"
+                    value={password}
+                    onChange={e => setPassword(e.target.value)}
                     placeholder="Create password"
                     className="w-full rounded-2xl border border-slate-200 px-4 py-3 outline-none transition focus:border-emerald-500"
                   />
@@ -63,6 +89,8 @@ const Register = () => {
                   </label>
                   <input
                     type="password"
+                    value={confirmPassword}
+                    onChange={e => setConfirmPassword(e.target.value)}
                     placeholder="Repeat password"
                     className="w-full rounded-2xl border border-slate-200 px-4 py-3 outline-none transition focus:border-emerald-500"
                   />

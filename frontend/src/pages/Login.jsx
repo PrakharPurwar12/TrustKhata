@@ -1,10 +1,14 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { navigateWithTransition } from '../utils/navigateWithTransition';
+import api from '../services/api';
 
 const Login = () => {
   const navigate = useNavigate();
   const [showPage, setShowPage] = useState(false);
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
 
   useEffect(() => {
     setShowPage(true);
@@ -38,11 +42,26 @@ const Login = () => {
             </p>
             <h2 className="mt-3 text-3xl font-bold">Sign in to continue</h2>
 
-            <form className="mt-8 space-y-5">
+            <form 
+              className="mt-8 space-y-5"
+              onSubmit={async (e) => {
+                e.preventDefault();
+                setError('');
+                try {
+                  await api.post('users/login/', { email, password });
+                  navigateWithTransition(navigate, '/dashboard');
+                } catch (err) {
+                  setError('Invalid email or password');
+                }
+              }}
+            >
+              {error && <div className="text-red-500 text-sm font-semibold">{error}</div>}
               <div>
                 <label className="mb-2 block text-sm font-medium text-slate-700">Email</label>
                 <input
                   type="email"
+                  value={email}
+                  onChange={e => setEmail(e.target.value)}
                   placeholder="you@example.com"
                   className="w-full rounded-2xl border border-slate-200 px-4 py-3 outline-none transition focus:border-emerald-500"
                 />
@@ -57,6 +76,8 @@ const Login = () => {
                 </div>
                 <input
                   type="password"
+                  value={password}
+                  onChange={e => setPassword(e.target.value)}
                   placeholder="Enter your password"
                   className="w-full rounded-2xl border border-slate-200 px-4 py-3 outline-none transition focus:border-emerald-500"
                 />

@@ -4,6 +4,7 @@ import Login from '../pages/Login';
 import Register from '../pages/Register';
 import Onboarding from '../pages/Onboarding';
 import Dashboard from '../pages/Dashboard';
+import CustomerKhata from '../pages/CustomerKhata';
 
 const AppRoutes = () => {
   return (
@@ -13,6 +14,7 @@ const AppRoutes = () => {
       <Route path="/register" element={<Register />} />
       <Route path="/onboarding" element={<Onboarding />} />
       <Route path="/dashboard" element={<Dashboard />} />
+      <Route path="/customer/:id" element={<CustomerKhata />} />
       <Route path="*" element={<Navigate replace to="/" />} />
     </Routes>
   );

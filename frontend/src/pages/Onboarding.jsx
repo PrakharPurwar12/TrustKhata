@@ -3,20 +3,28 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { navigateWithTransition } from '../utils/navigateWithTransition';
 
+import api from '../services/api';
+
 export default function Onboarding() {
   const navigate = useNavigate();
   const [showPage, setShowPage] = useState(false);
   const [shopName, setShopName] = useState('');
+  const [category, setCategory] = useState('');
 
   useEffect(() => {
     setShowPage(true);
   }, []);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (shopName.trim()) {
-      // Transition to dashboard
-      navigateWithTransition(navigate, '/dashboard');
+      try {
+        await api.post('users/update_shop/', { shop_name: shopName, category: category });
+        navigateWithTransition(navigate, '/dashboard');
+      } catch (err) {
+        console.error("Failed to update shop", err);
+        alert("Failed to save shop details.");
+      }
     }
   };
 
@@ -56,7 +64,11 @@ export default function Onboarding() {
             <label className="block text-sm font-semibold text-slate-700 mb-2">
               Business Category <span className="text-slate-400 font-normal">(Optional)</span>
             </label>
-            <select className="w-full px-5 py-4 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:bg-white transition-all text-slate-700 appearance-none">
+            <select 
+              value={category} 
+              onChange={(e) => setCategory(e.target.value)} 
+              className="w-full px-5 py-4 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:bg-white transition-all text-slate-700 appearance-none"
+            >
               <option value="">Select a category</option>
               <option value="grocery">Grocery / Kirana</option>
               <option value="medical">Medical / Pharmacy</option>
