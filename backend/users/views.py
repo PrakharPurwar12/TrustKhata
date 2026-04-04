@@ -71,3 +71,19 @@ def update_shop_view(request):
         return Response(ShopSerializer(shop).data, status=status.HTTP_200_OK)
     except Exception as e:
         return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+@api_view(["GET"])
+@permission_classes([IsAuthenticated])
+def dashboard_summary_view(request):
+    try:
+        shop = request.user.shop
+        from transactions.models import Transaction
+        from django.db.models import Sum, Q
+        from django.db.models.functions import Coalesce
+        
+        agg = Transaction.objects.filter(customer__shop=shop).aggregate(
+            to_get=Coalesce(Sum('amount', filter=Q(type='CREDIT')), 0),
+            to_give=Coalesce(Sum('amount', filter=Q(type='PAYMENT')), 0)
+        )
+        return Response(agg, status=status.HTTP_200_OK)
+    except Exception as e:
+        return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
