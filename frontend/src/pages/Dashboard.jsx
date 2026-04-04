@@ -18,6 +18,9 @@ const calculateOutstanding = (transactions) => {
 export default function Dashboard() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [customers, setCustomers] = useState([]);
+  const [newCustomerName, setNewCustomerName] = useState('');
+  const [newCustomerPhone, setNewCustomerPhone] = useState('');
+  const [newCustomerBalance, setNewCustomerBalance] = useState(0);
   const [transactions, setTransactions] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -45,6 +48,36 @@ export default function Dashboard() {
   }, []);
 
   const { toGet, toGive } = calculateOutstanding(transactions);
+
+  const handleSaveCustomer = async () => {
+    try {
+      const response = await customerService.create({
+        name: newCustomerName,
+        phone: newCustomerPhone
+      });
+      let newTransaction = null;
+      if (Number(newCustomerBalance) !== 0) {
+        const type = Number(newCustomerBalance) > 0 ? 'CREDIT' : 'PAYMENT';
+        const amt = Math.abs(Number(newCustomerBalance));
+        const trResponse = await transactionService.create({
+          customer: response.data.id,
+          amount: amt,
+          type: type,
+          note: "Opening Balance"
+        });
+        newTransaction = trResponse.data;
+        setTransactions(prev => [newTransaction, ...prev]);
+      }
+      setCustomers(prev => [response.data, ...prev]);
+      setIsModalOpen(false);
+      setNewCustomerName('');
+      setNewCustomerPhone('');
+      setNewCustomerBalance(0);
+    } catch (error) {
+      console.error("Failed to save customer", error);
+      alert("Failed to save customer. Backend might be down.");
+    }
+  };
 
   return (
     <div className="min-h-screen bg-slate-50 font-sans">
@@ -212,19 +245,19 @@ export default function Dashboard() {
                 <div className="mt-6 space-y-4">
                   <div>
                     <label className="block text-sm font-medium text-slate-700 mb-1">Customer Name</label>
-                    <input type="text" placeholder="e.g. Ramesh Kumar" className="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500" />
+                    <input type="text" value={newCustomerName} onChange={e => setNewCustomerName(e.target.value)} placeholder="e.g. Ramesh Kumar" className="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500" />
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-slate-700 mb-1">Phone Number (Optional)</label>
-                    <input type="tel" placeholder="e.g. 9876543210" className="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500" />
+                    <input type="tel" value={newCustomerPhone} onChange={e => setNewCustomerPhone(e.target.value)} placeholder="e.g. 9876543210" className="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500" />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-slate-700 mb-1">Opening Balance</label>
+                    <label className="block text-sm font-medium text-slate-700 mb-1">Opening Balance (Udhaar)</label>
                     <div className="relative">
                       <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                         <span className="text-slate-500">₹</span>
                       </div>
-                      <input type="number" defaultValue="0" className="w-full pl-8 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500" />
+                      <input type="number" value={newCustomerBalance} onChange={e => setNewCustomerBalance(e.target.value)} className="w-full pl-8 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500" />
                     </div>
                   </div>
                 </div>
@@ -234,8 +267,9 @@ export default function Dashboard() {
             <div className="mt-8 sm:mt-8 sm:flex sm:flex-row-reverse">
               <button 
                 type="button" 
-                onClick={() => setIsModalOpen(false)}
-                className="w-full inline-flex justify-center rounded-xl border border-transparent shadow-sm px-4 py-3 bg-emerald-600 text-base font-medium text-white hover:bg-emerald-700 sm:ml-3 sm:w-auto sm:text-sm"
+                onClick={handleSaveCustomer}
+                disabled={!newCustomerName.trim()}
+                className="w-full inline-flex justify-center rounded-xl border border-transparent shadow-sm px-4 py-3 bg-emerald-600 text-base font-medium text-white hover:bg-emerald-700 disabled:opacity-50 sm:ml-3 sm:w-auto sm:text-sm"
               >
                 Save Customer
               </button>

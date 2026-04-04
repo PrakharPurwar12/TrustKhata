@@ -1,7 +1,15 @@
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
+from rest_framework import status
+from .models import Shop
+from .serializers import ShopSerializer
 
-
-@api_view(["GET"])
+@api_view(["GET", "POST"])
 def dashboard_view(request):
+    if request.method == "POST":
+        serializer = ShopSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     return Response({"message": "Backend connected successfully."})
