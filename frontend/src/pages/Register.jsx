@@ -1,135 +1,184 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { motion } from 'framer-motion';
+import { Eye, EyeOff, Loader2, ArrowRight, CheckCircle2 } from 'lucide-react';
 import { navigateWithTransition } from '../utils/navigateWithTransition';
-import api from '../services/api';
+import { userService } from '../services/userService';
+import { parseApiError } from '../utils/apiError';
 
 const Register = () => {
   const navigate = useNavigate();
-  const [showPage, setShowPage] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
+  const [shopName, setShopName] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
-  useEffect(() => {
-    setShowPage(true);
-  }, []);
+
+  const handleRegister = async (e) => {
+    e.preventDefault();
+    setError('');
+    setLoading(true);
+    try {
+      await userService.register({ email, password, shop_name: shopName });
+      navigateWithTransition(navigate, '/onboarding');
+    } catch (err) {
+      setError(parseApiError(err));
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const pageVariants = {
+    initial: { opacity: 0, y: 20 },
+    animate: { opacity: 1, y: 0 },
+    exit: { opacity: 0, y: -20 },
+  };
 
   return (
-    <div className="min-h-screen bg-slate-100 px-4 py-10 [view-transition-name:auth-page]">
+    <motion.div 
+      initial="initial"
+      animate="animate"
+      exit="exit"
+      variants={pageVariants}
+      transition={{ duration: 0.25, ease: "easeInOut" }}
+      className="min-h-screen bg-slate-50 flex items-center justify-center p-4"
+    >
       <div
-        className={`mx-auto grid min-h-[calc(100vh-5rem)] max-w-6xl overflow-hidden rounded-[32px] border border-slate-200 bg-white shadow-xl transition-all duration-500 md:grid-cols-2 ${
-          showPage ? 'translate-y-0 opacity-100' : 'translate-y-4 opacity-0'
-        }`}
+        className="w-full max-w-5xl grid overflow-hidden rounded-[2.5rem] bg-white shadow-2xl border border-slate-200 md:grid-cols-2"
       >
-        <div className="flex items-center px-6 py-10 md:px-10">
-          <div className="mx-auto w-full max-w-md">
-            <p className="text-sm font-semibold uppercase tracking-[0.2em] text-emerald-600">
-              Register
-            </p>
-            <h1 className="mt-3 text-3xl font-bold text-slate-900 md:text-4xl">
-              Create your TrustKhata account
-            </h1>
+        {/* Left Side: Brand Visual */}
+        <div className="relative hidden md:flex flex-col justify-between bg-emerald-600 p-12 text-white overflow-hidden">
+          <div className="absolute top-0 right-0 -mr-20 -mt-20 h-96 w-96 rounded-full bg-white/10 blur-3xl"></div>
+          <div className="absolute bottom-0 left-0 -ml-20 -mb-20 h-96 w-96 rounded-full bg-emerald-400/20 blur-3xl"></div>
+          
+          <div className="relative z-10 flex items-center gap-2">
+            <div className="w-10 h-10 bg-white rounded-xl flex items-center justify-center text-emerald-600 font-bold text-2xl">T</div>
+            <span className="font-bold text-2xl tracking-tight">TrustKhata</span>
+          </div>
 
-            <form 
-              className="mt-8 space-y-5" 
-              onSubmit={async (e) => { 
-                e.preventDefault(); 
-                setError('');
-                if (password !== confirmPassword) {
-                  setError('Passwords do not match');
-                  return;
-                }
-                try {
-                  await api.post('users/register/', { email, password });
-                  navigateWithTransition(navigate, '/onboarding');
-                } catch (err) {
-                  setError(err.response?.data?.error || 'Registration failed');
-                }
-              }}
-            >
-              {error && <div className="text-red-500 text-sm font-semibold">{error}</div>}
-              <div>
-                <label className="mb-2 block text-sm font-medium text-slate-700">Full name</label>
+          <div className="relative z-10">
+            <h1 className="text-4xl lg:text-5xl font-bold leading-tight">
+              Scale your business <br /> 
+              <span className="text-emerald-100">smarter.</span>
+            </h1>
+            <p className="mt-6 text-emerald-50/80 text-lg max-w-sm">
+              Digitalizing your daily ledger doesn't have to be complicated. Join thousands of shopkeepers growing with TrustKhata.
+            </p>
+            
+            <div className="mt-12 space-y-4">
+              {[
+                "Instant balance tracking",
+                "Digital receipts & records",
+                "Strict multi-user security"
+              ].map((feature, i) => (
+                <div key={i} className="flex items-center gap-3 text-emerald-50 font-medium">
+                  <CheckCircle2 size={20} className="text-emerald-300" />
+                  {feature}
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="relative z-10 flex items-center gap-2 text-emerald-100/60 text-sm font-medium">
+            © {new Date().getFullYear()} TrustKhata Inc.
+          </div>
+        </div>
+
+        {/* Right Side: Form */}
+        <div className="flex items-center p-8 md:p-16">
+          <div className="w-full max-w-sm mx-auto">
+            <div className="mb-10 text-center md:text-left">
+              <h2 className="text-3xl font-bold text-slate-900 tracking-tight">Create Account</h2>
+              <p className="mt-2 text-slate-500 font-medium">Start your digital khata journey today</p>
+            </div>
+
+            <form className="space-y-5" onSubmit={handleRegister}>
+              {error && (
+                <div className="p-4 rounded-2xl bg-red-50 border border-red-100 text-red-600 text-sm font-semibold">
+                  {error}
+                </div>
+              )}
+
+              <div className="space-y-1.5 focus-within:text-emerald-600 transition-colors">
+                <label className="block text-sm font-bold text-slate-700">Shop Name</label>
                 <input
+                  required
                   type="text"
-                  placeholder="Prakhar Sharma"
-                  className="w-full rounded-2xl border border-slate-200 px-4 py-3 outline-none transition focus:border-emerald-500"
+                  value={shopName}
+                  onChange={e => setShopName(e.target.value)}
+                  placeholder="e.g. Sharma Kirana Store"
+                  className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3.5 text-slate-900 outline-none transition-all focus:bg-white focus:border-emerald-600 focus:ring-4 focus:ring-emerald-600/5"
                 />
               </div>
 
-              <div>
-                <label className="mb-2 block text-sm font-medium text-slate-700">Email</label>
+              <div className="space-y-1.5 focus-within:text-emerald-600 transition-colors">
+                <label className="block text-sm font-bold text-slate-700">Email Address</label>
                 <input
+                  required
                   type="email"
                   value={email}
                   onChange={e => setEmail(e.target.value)}
-                  placeholder="you@example.com"
-                  className="w-full rounded-2xl border border-slate-200 px-4 py-3 outline-none transition focus:border-emerald-500"
+                  placeholder="name@example.com"
+                  className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3.5 text-slate-900 outline-none transition-all focus:bg-white focus:border-emerald-600 focus:ring-4 focus:ring-emerald-600/5"
                 />
               </div>
 
-              <div className="grid gap-5 md:grid-cols-2">
-                <div>
-                  <label className="mb-2 block text-sm font-medium text-slate-700">
-                    Password
-                  </label>
+              <div className="space-y-1.5 focus-within:text-emerald-600 transition-colors">
+                <label className="block text-sm font-bold text-slate-700">Password</label>
+                <div className="relative group">
                   <input
-                    type="password"
+                    required
+                    type={showPassword ? "text" : "password"}
                     value={password}
                     onChange={e => setPassword(e.target.value)}
-                    placeholder="Create password"
-                    className="w-full rounded-2xl border border-slate-200 px-4 py-3 outline-none transition focus:border-emerald-500"
+                    placeholder="••••••••"
+                    className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3.5 text-slate-900 outline-none transition-all focus:bg-white focus:border-emerald-600 focus:ring-4 focus:ring-emerald-600/5"
                   />
-                </div>
-
-                <div>
-                  <label className="mb-2 block text-sm font-medium text-slate-700">
-                    Confirm password
-                  </label>
-                  <input
-                    type="password"
-                    value={confirmPassword}
-                    onChange={e => setConfirmPassword(e.target.value)}
-                    placeholder="Repeat password"
-                    className="w-full rounded-2xl border border-slate-200 px-4 py-3 outline-none transition focus:border-emerald-500"
-                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 p-2 text-slate-400 hover:text-emerald-600 transition-colors"
+                  >
+                    {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                  </button>
                 </div>
               </div>
 
               <button
                 type="submit"
-                className="w-full rounded-2xl bg-emerald-600 px-4 py-3 font-semibold text-white transition hover:bg-slate-950"
+                disabled={loading}
+                className="group relative w-full rounded-2xl bg-slate-900 px-6 py-4 font-bold text-white shadow-xl shadow-slate-200 transition-all hover:bg-emerald-600 hover:shadow-emerald-200 hover:-translate-y-0.5 active:translate-y-0 disabled:opacity-70 disabled:transform-none"
               >
-                Create account
+                <span className={`flex items-center justify-center gap-2 ${loading ? 'opacity-0' : 'opacity-100'}`}>
+                  Create Account 
+                  <ArrowRight size={18} className="translate-x-0 group-hover:translate-x-1 transition-transform" />
+                </span>
+                {loading && (
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <Loader2 size={24} className="animate-spin" />
+                  </div>
+                )}
               </button>
             </form>
 
-            <p className="mt-6 text-center text-sm text-slate-500">
-              Already have an account?{' '}
-              <button
-                type="button"
-                onClick={() => navigateWithTransition(navigate, '/login')}
-                className="font-semibold text-emerald-600 transition hover:text-emerald-500"
-              >
-                Login here
-              </button>
-            </p>
-          </div>
-        </div>
-
-        <div className="flex items-center bg-slate-950 p-8 text-white md:p-12">
-          <div className="max-w-md">
-            <p className="inline-flex rounded-full border border-white/15 px-4 py-1 text-sm text-white/70">
-              TrustKhata
-            </p>
-            <h2 className="mt-5 text-4xl font-bold leading-tight">
-              Register once. Start tracking your udhar flow instantly.
-            </h2>
+            <div className="mt-10 text-center">
+              <p className="text-slate-500 font-medium">
+                Already have an account?{' '}
+                <button
+                  type="button"
+                  onClick={() => navigateWithTransition(navigate, '/login')}
+                  className="font-bold text-emerald-600 hover:text-emerald-700 transition-colors underline underline-offset-4"
+                >
+                  Log in here
+                </button>
+              </p>
+            </div>
           </div>
         </div>
       </div>
-    </div>
+    </motion.div>
   );
 };
 

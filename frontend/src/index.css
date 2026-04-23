@@ -1,5 +1,27 @@
 @import "tailwindcss";
 
+@theme {
+  --color-brand-50: #ecfdf5;
+  --color-brand-600: #059669;
+  --color-brand-700: #047857;
+  
+  --color-danger-50: #fef2f2;
+  --color-danger-500: #ef4444;
+  --color-danger-700: #b91c1c;
+
+  --color-neutral-bg: #f9fafb;
+  --color-neutral-text: #111827;
+  --color-neutral-muted: #6b7280;
+  --color-neutral-border: #e5e7eb;
+}
+
+@layer base {
+  body {
+    @apply bg-neutral-bg text-neutral-text antialiased;
+    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+  }
+}
+
 ::view-transition-old(auth-page),
 ::view-transition-new(auth-page) {
   animation-duration: 300ms;

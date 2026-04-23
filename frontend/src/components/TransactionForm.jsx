@@ -27,7 +27,6 @@ const TransactionForm = ({ customerId, onCreated }) => {
       amount: Number(formData.amount),
       type: formData.type,
       note: formData.note.trim(),
-      date: new Date().toISOString().slice(0, 10),
     };
 
     try {
