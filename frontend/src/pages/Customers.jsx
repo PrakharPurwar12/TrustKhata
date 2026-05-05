@@ -5,15 +5,17 @@ import { transactionService } from '../services/transactionService';
 import {
   calculateTrust,
   formatCurrency,
-  formatDate,
   getOutstandingAmount,
 } from '../utils/calculateTrust';
 import { sampleCustomers, sampleTransactions } from '../utils/demoData';
+import { useTheme } from '../context/ThemeContext';
+import { Sun, Moon } from 'lucide-react';
 
 const Customers = () => {
   const [customers, setCustomers] = useState(sampleCustomers);
   const [transactions, setTransactions] = useState(sampleTransactions);
   const [query, setQuery] = useState('');
+  const { isDark, toggleTheme } = useTheme();
 
   useEffect(() => {
     const loadCustomers = async () => {
@@ -71,14 +73,23 @@ const Customers = () => {
   );
 
   return (
-    <section className="page">
-      <header className="page-header">
+    <section className="page dark:bg-slate-900 dark:text-slate-100 transition-colors duration-300 min-h-screen">
+      <header className="page-header flex justify-between items-start">
         <div className="page-header__copy">
           <span className="eyebrow">Customer ledgers</span>
           <h1 className="page-header__title">Browse customers with trust context, not just names.</h1>
           <p>Search, compare outstanding balances, aur quickly identify whom to follow up next.</p>
         </div>
-        <span className="status-pill">{filteredCustomers.length} visible accounts</span>
+        <div className="flex flex-col items-end gap-4">
+          <button
+            onClick={toggleTheme}
+            className="p-2 text-slate-400 hover:text-emerald-600 dark:hover:text-emerald-400 bg-slate-50 hover:bg-emerald-50 dark:bg-slate-800 dark:hover:bg-slate-700 rounded-xl transition-all"
+            aria-label="Toggle Dark Mode"
+          >
+            {isDark ? <Sun size={20} /> : <Moon size={20} />}
+          </button>
+          <span className="status-pill">{filteredCustomers.length} visible accounts</span>
+        </div>
       </header>
 
       <section className="surface-card">

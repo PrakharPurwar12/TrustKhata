@@ -13,7 +13,9 @@ import {
   Loader2, 
   LayoutDashboard,
   UserPlus,
-  User
+  User,
+  Sun,
+  Moon
 } from 'lucide-react';
 import { customerService } from '../services/customerService';
 import { transactionService } from '../services/transactionService';
@@ -21,9 +23,11 @@ import { userService } from '../services/userService';
 import { parseApiError } from '../utils/apiError';
 import { toNumber } from '../utils/normalizers';
 import { isValidPhone, normalizePhone } from '../utils/phoneValidation';
+import { useTheme } from '../context/ThemeContext';
 
 export default function Dashboard() {
   const navigate = useNavigate();
+  const { isDark, toggleTheme } = useTheme();
   const [isModalOpen, setIsModalOpen] = useState(false);
   
   // Dashboard Data States
@@ -169,9 +173,9 @@ export default function Dashboard() {
   }, [customers, debouncedSearch]);
 
   return (
-    <div className="min-h-screen bg-slate-50 font-sans text-slate-900 selection:bg-emerald-100 selection:text-emerald-900">
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-900 font-sans text-slate-900 dark:text-slate-100 selection:bg-emerald-100 selection:text-emerald-900 transition-colors duration-300">
       {/* Top Navbar */}
-      <header className="bg-white border-b border-slate-200 sticky top-0 z-30 shadow-sm/5">
+      <header className="bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 sticky top-0 z-30 shadow-sm/5 transition-colors duration-300">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center gap-2 transition-opacity hover:opacity-80 cursor-pointer">
@@ -181,21 +185,28 @@ export default function Dashboard() {
               <span className="font-bold text-xl tracking-tight">TrustKhata</span>
             </div>
             
-            <div className="flex items-center gap-6">
+            <div className="flex items-center gap-4 md:gap-6">
+              <button
+                onClick={toggleTheme}
+                className="p-2 text-slate-400 hover:text-emerald-600 dark:hover:text-emerald-400 bg-slate-50 hover:bg-emerald-50 dark:bg-slate-800 dark:hover:bg-slate-700 rounded-xl transition-all"
+                aria-label="Toggle Dark Mode"
+              >
+                {isDark ? <Sun size={20} /> : <Moon size={20} />}
+              </button>
               <div className="hidden sm:flex flex-col items-end">
-                <span className="text-sm font-bold text-slate-900">{shopName}</span>
+                <span className="text-sm font-bold text-slate-900 dark:text-white">{shopName}</span>
                 <span className="text-[10px] uppercase tracking-wider font-bold text-slate-400">Merchant Account</span>
               </div>
               <Link 
                 to="/profile"
-                className="group flex items-center gap-2 text-sm font-bold text-slate-500 hover:text-emerald-600 transition-colors bg-slate-50 hover:bg-emerald-50 px-4 py-2 rounded-xl border border-slate-200 hover:border-emerald-100"
+                className="group flex items-center gap-2 text-sm font-bold text-slate-500 dark:text-slate-400 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors bg-slate-50 dark:bg-slate-800 hover:bg-emerald-50 dark:hover:bg-emerald-900/30 px-4 py-2 rounded-xl border border-slate-200 dark:border-slate-700 hover:border-emerald-100 dark:hover:border-emerald-800"
               >
                 <User size={18} />
                 <span className="hidden md:inline">Profile</span>
               </Link>
               <button 
                 onClick={handleLogout}
-                className="group flex items-center gap-2 text-sm font-bold text-slate-500 hover:text-rose-600 transition-colors bg-slate-50 hover:bg-rose-50 px-4 py-2 rounded-xl border border-slate-200 hover:border-rose-100"
+                className="group flex items-center gap-2 text-sm font-bold text-slate-500 dark:text-slate-400 hover:text-rose-600 dark:hover:text-rose-400 transition-colors bg-slate-50 dark:bg-slate-800 hover:bg-rose-50 dark:hover:bg-rose-900/30 px-4 py-2 rounded-xl border border-slate-200 dark:border-slate-700 hover:border-rose-100 dark:hover:border-rose-800"
               >
                 <LogOut size={18} className="group-hover:rotate-180 transition-transform duration-500" />
                 <span className="hidden md:inline">Logout</span>
@@ -211,8 +222,8 @@ export default function Dashboard() {
         {/* Welcome Section */}
         <div className="flex flex-col md:flex-row md:items-center justify-between mb-10 gap-6">
           <div className="space-y-1">
-            <h1 className="text-3xl font-extrabold tracking-tight text-slate-900">Merchant Dashboard</h1>
-            <p className="text-slate-500 font-medium">Monitoring business khata for <span className="text-emerald-600 font-bold">{shopName}</span></p>
+            <h1 className="text-3xl font-extrabold tracking-tight text-slate-900 dark:text-white transition-colors duration-300">Merchant Dashboard</h1>
+            <p className="text-slate-500 dark:text-slate-400 font-medium">Monitoring business khata for <span className="text-emerald-600 dark:text-emerald-400 font-bold">{shopName}</span></p>
           </div>
           <button 
             onClick={() => setIsModalOpen(true)}
@@ -226,16 +237,16 @@ export default function Dashboard() {
         {/* Global Stats Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-12">
           {/* Card: You'll Receive (Inflow) */}
-          <div className="bg-white rounded-[2rem] p-8 border border-emerald-100 shadow-sm shadow-emerald-600/5 relative overflow-hidden group hover:shadow-xl hover:shadow-emerald-600/5 transition-all">
-             <div className="absolute top-0 right-0 p-8 text-emerald-100 group-hover:text-emerald-200 transition-colors">
+          <div className="bg-white dark:bg-slate-800 rounded-[2rem] p-8 border border-emerald-100 dark:border-emerald-900 shadow-sm shadow-emerald-600/5 relative overflow-hidden group hover:shadow-xl hover:shadow-emerald-600/5 transition-all">
+             <div className="absolute top-0 right-0 p-8 text-emerald-100 dark:text-emerald-900/40 group-hover:text-emerald-200 dark:group-hover:text-emerald-800 transition-colors">
                 <ArrowUpRight size={120} strokeWidth={1} />
              </div>
              <div className="relative z-10">
-                <div className="inline-flex items-center gap-2 px-3 py-1 bg-emerald-50 text-emerald-700 rounded-full text-xs font-bold uppercase tracking-wider mb-6">
+                <div className="inline-flex items-center gap-2 px-3 py-1 bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 rounded-full text-xs font-bold uppercase tracking-wider mb-6">
                    <ArrowUpRight size={14} />
                    You'll Receive
                 </div>
-                <div className="text-5xl font-black text-slate-900 tracking-tighter shadow-emerald-100">
+                <div className="text-5xl font-black text-slate-900 dark:text-white tracking-tighter shadow-emerald-100">
                    ₹ {Math.abs(summary.toGet || 0).toLocaleString('en-IN')}
                 </div>
                 <p className="mt-4 text-emerald-600/60 font-medium text-sm italic">Total pending collections from customers</p>
@@ -243,16 +254,16 @@ export default function Dashboard() {
           </div>
 
           {/* Card: You Owe (Outflow) */}
-          <div className="bg-white rounded-[2rem] p-8 border border-rose-100 shadow-sm shadow-rose-600/5 relative overflow-hidden group hover:shadow-xl hover:shadow-rose-600/5 transition-all">
-             <div className="absolute top-0 right-0 p-8 text-rose-100 group-hover:text-rose-200 transition-colors text-right">
+          <div className="bg-white dark:bg-slate-800 rounded-[2rem] p-8 border border-rose-100 dark:border-rose-900 shadow-sm shadow-rose-600/5 relative overflow-hidden group hover:shadow-xl hover:shadow-rose-600/5 transition-all">
+             <div className="absolute top-0 right-0 p-8 text-rose-100 dark:text-rose-900/40 group-hover:text-rose-200 dark:group-hover:text-rose-800 transition-colors text-right">
                 <ArrowDownLeft size={120} strokeWidth={1} />
              </div>
              <div className="relative z-10">
-                <div className="inline-flex items-center gap-2 px-3 py-1 bg-rose-50 text-rose-700 rounded-full text-xs font-bold uppercase tracking-wider mb-6">
+                <div className="inline-flex items-center gap-2 px-3 py-1 bg-rose-50 dark:bg-rose-900/30 text-rose-700 dark:text-rose-400 rounded-full text-xs font-bold uppercase tracking-wider mb-6">
                    <ArrowDownLeft size={14} />
                    You Owe
                 </div>
-                <div className="text-5xl font-black text-slate-900 tracking-tighter">
+                <div className="text-5xl font-black text-slate-900 dark:text-white tracking-tighter">
                    ₹ {Math.abs(summary.toGive || 0).toLocaleString('en-IN')}
                 </div>
                 <p className="mt-4 text-rose-600/60 font-medium text-sm italic">Advances paid by customers to you</p>
@@ -261,12 +272,12 @@ export default function Dashboard() {
         </div>
 
         {/* Search & Directory Section */}
-        <div className="bg-white rounded-[2.5rem] border border-slate-200 p-8 shadow-sm">
+        <div className="bg-white dark:bg-slate-800 rounded-[2.5rem] border border-slate-200 dark:border-slate-700 p-8 shadow-sm transition-colors duration-300">
           <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center mb-10 gap-6">
             <div>
-              <h3 className="text-2xl font-black text-slate-900 flex items-center gap-3 tracking-tight">
+              <h3 className="text-2xl font-black text-slate-900 dark:text-white flex items-center gap-3 tracking-tight">
                 Customers Directory
-                <span className="bg-slate-100 text-slate-500 py-1 px-4 rounded-full text-xs font-black tracking-widest">{totalCount}</span>
+                <span className="bg-slate-100 dark:bg-slate-700 text-slate-500 dark:text-slate-300 py-1 px-4 rounded-full text-xs font-black tracking-widest">{totalCount}</span>
               </h3>
               <p className="text-slate-400 text-sm font-medium mt-1">Manage and track individual member accounts</p>
             </div>
@@ -280,7 +291,7 @@ export default function Dashboard() {
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Search by name or phone..." 
-                className="w-full pl-11 pr-11 py-4 bg-slate-50 border border-slate-200 rounded-2xl focus:outline-none focus:ring-4 focus:ring-emerald-600/5 focus:border-emerald-600 focus:bg-white transition-all text-sm font-medium placeholder:text-slate-400"
+                className="w-full pl-11 pr-11 py-4 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl focus:outline-none focus:ring-4 focus:ring-emerald-600/5 focus:border-emerald-600 dark:focus:border-emerald-500 focus:bg-white dark:focus:bg-slate-800 transition-all text-sm font-medium placeholder:text-slate-400 dark:text-slate-100"
               />
               {searchQuery && (
                 <button 
@@ -301,11 +312,11 @@ export default function Dashboard() {
           )}
 
           {!loading && customers.length === 0 && searchQuery === '' && (
-            <div className="bg-slate-50 rounded-[2rem] border-2 border-dashed border-slate-200 p-20 text-center">
-              <div className="w-24 h-24 bg-white rounded-3xl flex items-center justify-center mx-auto mb-8 shadow-sm text-slate-300">
+            <div className="bg-slate-50 dark:bg-slate-900/50 rounded-[2rem] border-2 border-dashed border-slate-200 dark:border-slate-700 p-20 text-center">
+              <div className="w-24 h-24 bg-white dark:bg-slate-800 rounded-3xl flex items-center justify-center mx-auto mb-8 shadow-sm text-slate-300 dark:text-slate-600">
                 <Users size={48} />
               </div>
-              <h3 className="text-2xl font-bold text-slate-900 mb-2 tracking-tight">Your Digital Khata is Fresh!</h3>
+              <h3 className="text-2xl font-bold text-slate-900 dark:text-white mb-2 tracking-tight">Your Digital Khata is Fresh!</h3>
               <p className="text-slate-500 font-medium mb-10 max-w-sm mx-auto">
                 Transform your paper records into a powerful digital ledger. Start by adding your first regular customer.
               </p>
@@ -341,14 +352,14 @@ export default function Dashboard() {
                     <Link 
                       to={`/customer/${customer.id}`}
                       key={customer.id} 
-                      className="group flex flex-col sm:flex-row sm:items-center justify-between p-6 bg-slate-50/50 rounded-3xl hover:bg-white transition-all border border-transparent hover:border-emerald-100 hover:shadow-xl hover:shadow-emerald-600/5 gap-6"
+                      className="group flex flex-col sm:flex-row sm:items-center justify-between p-6 bg-slate-50/50 dark:bg-slate-700/30 rounded-3xl hover:bg-white dark:hover:bg-slate-700 transition-all border border-transparent hover:border-emerald-100 dark:hover:border-emerald-900/50 hover:shadow-xl hover:shadow-emerald-600/5 gap-6"
                     >
                       <div className="flex items-center gap-5">
-                        <div className="w-16 h-16 rounded-2xl bg-white border border-slate-200 flex items-center justify-center text-emerald-700 font-black text-2xl shadow-sm group-hover:bg-emerald-600 group-hover:text-white group-hover:border-emerald-600 transition-all">
+                        <div className="w-16 h-16 rounded-2xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-600 flex items-center justify-center text-emerald-700 dark:text-emerald-400 font-black text-2xl shadow-sm group-hover:bg-emerald-600 group-hover:text-white group-hover:border-emerald-600 transition-all">
                           {customer.name?.charAt(0).toUpperCase()}
                         </div>
                         <div>
-                          <p className="font-black text-slate-900 text-lg tracking-tight group-hover:text-emerald-700 transition-colors">{customer.name}</p>
+                          <p className="font-black text-slate-900 dark:text-white text-lg tracking-tight group-hover:text-emerald-700 dark:group-hover:text-emerald-400 transition-colors">{customer.name}</p>
                           <p className="text-xs font-bold text-slate-400 tracking-wider flex items-center gap-1.5 uppercase mt-1">
                              <div className="w-1 h-1 bg-slate-300 rounded-full" />
                              {customer.phone || 'Contact not set'}
@@ -425,8 +436,8 @@ export default function Dashboard() {
             onClick={() => !saving && setIsModalOpen(false)}
           ></div>
           
-          <div className="relative z-10 w-full max-w-md bg-white rounded-[3rem] shadow-2xl overflow-hidden transform transition-all animate-in fade-in zoom-in duration-300">
-            <div className="bg-slate-900 p-10 text-white relative overflow-hidden">
+          <div className="relative z-10 w-full max-w-md bg-white dark:bg-slate-800 rounded-[3rem] shadow-2xl overflow-hidden transform transition-all animate-in fade-in zoom-in duration-300">
+            <div className="bg-slate-900 dark:bg-slate-950 p-10 text-white relative overflow-hidden">
                <div className="absolute top-0 right-0 -mr-16 -mt-16 w-48 h-48 bg-emerald-500/20 rounded-full blur-3xl opacity-50" />
                <div className="relative z-10">
                   <div className="w-14 h-14 bg-emerald-600 rounded-2xl flex items-center justify-center mb-6 shadow-xl shadow-emerald-600/20">

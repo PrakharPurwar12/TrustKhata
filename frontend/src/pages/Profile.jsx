@@ -15,13 +15,17 @@ import {
   ChevronRight,
   ShieldCheck,
   Building2,
-  Tag
+  Tag,
+  Sun,
+  Moon
 } from 'lucide-react';
 import { userService } from '../services/userService';
 import { parseApiError } from '../utils/apiError';
+import { useTheme } from '../context/ThemeContext';
 
 export default function Profile() {
   const navigate = useNavigate();
+  const { isDark, toggleTheme } = useTheme();
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
@@ -95,20 +99,29 @@ export default function Profile() {
       animate="animate"
       exit="exit"
       variants={pageVariants}
-      className="min-h-screen bg-slate-50 pb-20"
+      className="min-h-screen bg-slate-50 dark:bg-slate-900 pb-20 text-slate-900 dark:text-slate-100 transition-colors duration-300"
     >
       {/* Simple Header */}
-      <nav className="bg-white border-b border-slate-200 sticky top-0 z-30">
+      <nav className="bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 sticky top-0 z-30 transition-colors duration-300">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
           <Link to="/dashboard" className="flex items-center gap-2 text-slate-500 hover:text-emerald-600 transition-colors font-bold text-sm">
             <ArrowLeft size={18} />
             Back to Dashboard
           </Link>
-          <div className="flex items-center gap-2">
-            <div className="w-8 h-8 bg-emerald-600 rounded-lg flex items-center justify-center text-white shadow-sm">
-              <User size={16} />
+          <div className="flex items-center gap-4">
+            <button
+              onClick={toggleTheme}
+              className="p-2 text-slate-400 hover:text-emerald-600 dark:hover:text-emerald-400 bg-slate-50 hover:bg-emerald-50 dark:bg-slate-800 dark:hover:bg-slate-700 rounded-xl transition-all"
+              aria-label="Toggle Dark Mode"
+            >
+              {isDark ? <Sun size={20} /> : <Moon size={20} />}
+            </button>
+            <div className="flex items-center gap-2">
+              <div className="w-8 h-8 bg-emerald-600 rounded-lg flex items-center justify-center text-white shadow-sm">
+                <User size={16} />
+              </div>
+              <span className="font-bold text-slate-900 dark:text-white">Merchant Settings</span>
             </div>
-            <span className="font-bold text-slate-900">Merchant Settings</span>
           </div>
         </div>
       </nav>

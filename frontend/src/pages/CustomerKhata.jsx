@@ -25,16 +25,20 @@ import {
   History,
   AlertTriangle,
   ChevronLeft,
-  ChevronRight
+  ChevronRight,
+  Sun,
+  Moon
 } from 'lucide-react';
 import { customerService, deleteCustomer } from '../services/customerService';
 import { transactionService } from '../services/transactionService';
 import { parseApiError } from '../utils/apiError';
 import { isValidPhone, normalizePhone } from '../utils/phoneValidation';
+import { useTheme } from '../context/ThemeContext';
 
 export default function CustomerKhata() {
   const { id } = useParams();
   const navigate = useNavigate();
+  const { isDark, toggleTheme } = useTheme();
   
   // Data States
   const [customer, setCustomer] = useState(null);
@@ -199,22 +203,22 @@ export default function CustomerKhata() {
       animate="animate"
       exit="exit"
       variants={pageVariants}
-      className="min-h-screen bg-slate-50 font-sans pb-20"
+      className="min-h-screen bg-slate-50 dark:bg-slate-900 font-sans pb-20 text-slate-900 dark:text-slate-100 transition-colors duration-300"
     >
       {/* Dynamic Header */}
-      <header className="bg-white border-b border-slate-200 sticky top-0 z-40 shadow-sm/5">
+      <header className="bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 sticky top-0 z-40 shadow-sm/5 transition-colors duration-300">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 h-20 flex items-center justify-between">
           <div className="flex items-center gap-5">
-            <Link to="/dashboard" className="w-10 h-10 bg-slate-50 rounded-xl flex items-center justify-center text-slate-400 hover:text-emerald-600 border border-slate-200 transition-all hover:-translate-x-1">
+            <Link to="/dashboard" className="w-10 h-10 bg-slate-50 dark:bg-slate-800 rounded-xl flex items-center justify-center text-slate-400 hover:text-emerald-600 dark:hover:text-emerald-400 border border-slate-200 dark:border-slate-700 transition-all hover:-translate-x-1">
               <ArrowLeft size={20} />
             </Link>
-            <div className="h-10 w-px bg-slate-100 hidden sm:block" />
+            <div className="h-10 w-px bg-slate-100 dark:bg-slate-700 hidden sm:block transition-colors duration-300" />
             <div className="flex items-center gap-4">
-              <div className="w-12 h-12 bg-slate-900 rounded-2xl flex items-center justify-center text-white font-black text-xl shadow-lg">
+              <div className="w-12 h-12 bg-slate-900 dark:bg-slate-700 rounded-2xl flex items-center justify-center text-white font-black text-xl shadow-lg transition-colors duration-300">
                 {customer?.name?.charAt(0).toUpperCase()}
               </div>
               <div className="hidden sm:block">
-                <h1 className="text-xl font-black text-slate-900 tracking-tight leading-none">{customer?.name}</h1>
+                <h1 className="text-xl font-black text-slate-900 dark:text-white tracking-tight leading-none transition-colors duration-300">{customer?.name}</h1>
                 <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-1 flex items-center gap-1.5">
                   <Phone size={10} className="text-emerald-500" />
                   {customer?.phone || 'No Contact'}
@@ -224,10 +228,17 @@ export default function CustomerKhata() {
           </div>
 
           <div className="flex items-center gap-3">
+             <button
+                onClick={toggleTheme}
+                className="w-11 h-11 flex items-center justify-center rounded-2xl border bg-white dark:bg-slate-800 text-slate-400 hover:text-emerald-600 dark:hover:text-emerald-400 border-slate-200 dark:border-slate-700 transition-all"
+                aria-label="Toggle Dark Mode"
+              >
+                {isDark ? <Sun size={20} /> : <Moon size={20} />}
+             </button>
              <div className="relative">
                 <button 
                   onClick={() => setIsMenuOpen(!isMenuOpen)}
-                  className={`w-11 h-11 flex items-center justify-center rounded-2xl border transition-all ${isMenuOpen ? 'bg-slate-900 text-white border-slate-900 shadow-lg' : 'bg-white text-slate-400 border-slate-200 hover:text-slate-900 hover:border-slate-300'}`}
+                  className={`w-11 h-11 flex items-center justify-center rounded-2xl border transition-all ${isMenuOpen ? 'bg-slate-900 dark:bg-slate-700 text-white border-slate-900 dark:border-slate-700 shadow-lg' : 'bg-white dark:bg-slate-800 text-slate-400 border-slate-200 dark:border-slate-700 hover:text-slate-900 dark:hover:text-white hover:border-slate-300 dark:hover:border-slate-600'}`}
                 >
                   <Settings size={20} className={isMenuOpen ? 'rotate-90 transition-transform duration-500' : ''} />
                 </button>
@@ -274,12 +285,12 @@ export default function CustomerKhata() {
       <main className="max-w-5xl mx-auto px-4 sm:px-6 py-10">
         
         {/* User Card (Mobile Only) */}
-        <div className="sm:hidden bg-white p-6 rounded-3xl border border-slate-200 mb-8 flex items-center gap-4">
-           <div className="w-14 h-14 bg-slate-900 rounded-2xl flex items-center justify-center text-white font-black text-2xl">
+        <div className="sm:hidden bg-white dark:bg-slate-800 p-6 rounded-3xl border border-slate-200 dark:border-slate-700 mb-8 flex items-center gap-4 transition-colors duration-300">
+           <div className="w-14 h-14 bg-slate-900 dark:bg-slate-700 rounded-2xl flex items-center justify-center text-white font-black text-2xl">
               {customer?.name?.charAt(0).toUpperCase()}
            </div>
            <div>
-              <h2 className="text-xl font-black text-slate-900 tracking-tight">{customer?.name}</h2>
+              <h2 className="text-xl font-black text-slate-900 dark:text-white tracking-tight">{customer?.name}</h2>
               <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">{customer?.phone || 'No Phone'}</p>
            </div>
         </div>
@@ -287,29 +298,29 @@ export default function CustomerKhata() {
         {/* 3-Card Summary Grid */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
            {/* Summary: Total Credit (Gave) */}
-           <div className="bg-white p-8 rounded-[2.5rem] border border-slate-200 shadow-sm/5 relative overflow-hidden group">
-              <div className="absolute top-0 right-0 p-6 text-rose-50 opacity-0 group-hover:opacity-100 -translate-y-4 group-hover:translate-y-0 transition-all duration-500">
+           <div className="bg-white dark:bg-slate-800 p-8 rounded-[2.5rem] border border-slate-200 dark:border-slate-700 shadow-sm/5 relative overflow-hidden group transition-colors duration-300">
+              <div className="absolute top-0 right-0 p-6 text-rose-50 dark:text-rose-900/20 opacity-0 group-hover:opacity-100 -translate-y-4 group-hover:translate-y-0 transition-all duration-500">
                 <ArrowUpRight size={48} strokeWidth={3} />
               </div>
-              <div className="flex items-center gap-3 text-rose-600 mb-4 bg-rose-50 w-fit px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest">
+              <div className="flex items-center gap-3 text-rose-600 dark:text-rose-400 mb-4 bg-rose-50 dark:bg-rose-900/30 w-fit px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest transition-colors duration-300">
                 <Plus size={14} strokeWidth={3} />
                 Total Given
               </div>
-              <h4 className="text-3xl font-black text-slate-900 tracking-tighter shadow-sm">₹ {customer?.total_credit?.toLocaleString('en-IN')}</h4>
-              <p className="text-slate-400 text-xs font-bold mt-2">Aggregate credit sales</p>
+              <h4 className="text-3xl font-black text-slate-900 dark:text-white tracking-tighter shadow-sm transition-colors duration-300">₹ {customer?.total_credit?.toLocaleString('en-IN')}</h4>
+              <p className="text-slate-400 dark:text-slate-500 text-xs font-bold mt-2 transition-colors duration-300">Aggregate credit sales</p>
            </div>
 
            {/* Summary: Total Payment (Got) */}
-           <div className="bg-white p-8 rounded-[2.5rem] border border-slate-200 shadow-sm/5 relative overflow-hidden group">
-              <div className="absolute top-0 right-0 p-6 text-emerald-50 opacity-0 group-hover:opacity-100 -translate-y-4 group-hover:translate-y-0 transition-all duration-500">
+           <div className="bg-white dark:bg-slate-800 p-8 rounded-[2.5rem] border border-slate-200 dark:border-slate-700 shadow-sm/5 relative overflow-hidden group transition-colors duration-300">
+              <div className="absolute top-0 right-0 p-6 text-emerald-50 dark:text-emerald-900/20 opacity-0 group-hover:opacity-100 -translate-y-4 group-hover:translate-y-0 transition-all duration-500">
                 <ArrowDownLeft size={48} strokeWidth={3} />
               </div>
-              <div className="flex items-center gap-3 text-emerald-600 mb-4 bg-emerald-50 w-fit px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest">
+              <div className="flex items-center gap-3 text-emerald-600 dark:text-emerald-400 mb-4 bg-emerald-50 dark:bg-emerald-900/30 w-fit px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest transition-colors duration-300">
                 <Minus size={14} strokeWidth={3} />
                 Total Received
               </div>
-              <h4 className="text-3xl font-black text-slate-900 tracking-tighter">₹ {customer?.total_payment?.toLocaleString('en-IN')}</h4>
-              <p className="text-slate-400 text-xs font-bold mt-2">Total settlements made</p>
+              <h4 className="text-3xl font-black text-slate-900 dark:text-white tracking-tighter transition-colors duration-300">₹ {customer?.total_payment?.toLocaleString('en-IN')}</h4>
+              <p className="text-slate-400 dark:text-slate-500 text-xs font-bold mt-2 transition-colors duration-300">Total settlements made</p>
            </div>
 
            {/* Summary: Net Balance */}
@@ -329,70 +340,70 @@ export default function CustomerKhata() {
         <div className="flex flex-col sm:flex-row gap-4 mb-10">
            <button 
              onClick={() => { setTransactionType('CREDIT'); setIsModalOpen(true); }}
-             className="flex-1 bg-white border-2 border-rose-100 hover:border-rose-200 p-5 rounded-3xl flex items-center justify-between group transition-all hover:shadow-xl hover:shadow-rose-600/5 active:scale-95"
+             className="flex-1 bg-white dark:bg-slate-800 border-2 border-rose-100 dark:border-rose-900/50 hover:border-rose-200 dark:hover:border-rose-800 p-5 rounded-3xl flex items-center justify-between group transition-all hover:shadow-xl hover:shadow-rose-600/5 active:scale-95"
            >
               <div className="flex items-center gap-4">
-                 <div className="w-12 h-12 bg-rose-50 text-rose-600 rounded-2xl flex items-center justify-center group-hover:bg-rose-600 group-hover:text-white transition-all">
+                 <div className="w-12 h-12 bg-rose-50 dark:bg-rose-900/30 text-rose-600 dark:text-rose-400 rounded-2xl flex items-center justify-center group-hover:bg-rose-600 group-hover:text-white transition-all">
                     <Plus size={24} strokeWidth={3} />
                  </div>
                  <div className="text-left">
-                    <p className="text-sm font-black text-slate-900 tracking-tight">Give Credit</p>
+                    <p className="text-sm font-black text-slate-900 dark:text-white tracking-tight transition-colors duration-300">Give Credit</p>
                     <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Sell on udhaar</p>
                  </div>
               </div>
-              <ArrowUpRight className="text-rose-200 group-hover:text-rose-500 transition-colors" />
+              <ArrowUpRight className="text-rose-200 dark:text-rose-900 group-hover:text-rose-500 dark:group-hover:text-rose-400 transition-colors" />
            </button>
 
            <button 
              onClick={() => { setTransactionType('PAYMENT'); setIsModalOpen(true); }}
-             className="flex-1 bg-white border-2 border-emerald-100 hover:border-emerald-200 p-5 rounded-3xl flex items-center justify-between group transition-all hover:shadow-xl hover:shadow-emerald-600/5 active:scale-95"
+             className="flex-1 bg-white dark:bg-slate-800 border-2 border-emerald-100 dark:border-emerald-900/50 hover:border-emerald-200 dark:hover:border-emerald-800 p-5 rounded-3xl flex items-center justify-between group transition-all hover:shadow-xl hover:shadow-emerald-600/5 active:scale-95"
            >
               <div className="flex items-center gap-4">
-                 <div className="w-12 h-12 bg-emerald-50 text-emerald-600 rounded-2xl flex items-center justify-center group-hover:bg-emerald-600 group-hover:text-white transition-all">
+                 <div className="w-12 h-12 bg-emerald-50 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 rounded-2xl flex items-center justify-center group-hover:bg-emerald-600 group-hover:text-white transition-all">
                     <Minus size={24} strokeWidth={3} />
                  </div>
                  <div className="text-left">
-                    <p className="text-sm font-black text-slate-900 tracking-tight">Accept Payment</p>
+                    <p className="text-sm font-black text-slate-900 dark:text-white tracking-tight transition-colors duration-300">Accept Payment</p>
                     <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Receive cash/jama</p>
                  </div>
               </div>
-              <ArrowDownLeft className="text-emerald-200 group-hover:text-emerald-500 transition-colors" />
+              <ArrowDownLeft className="text-emerald-200 dark:text-emerald-900 group-hover:text-emerald-500 dark:group-hover:text-emerald-400 transition-colors" />
            </button>
         </div>
 
         {/* Transaction History Section */}
-        <div className="bg-white rounded-[3rem] border border-slate-200 shadow-sm/5 overflow-hidden">
-          <div className="px-10 py-8 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
-            <h3 className="text-lg font-black text-slate-900 tracking-tight flex items-center gap-3">
-              <History size={20} className="text-emerald-600" />
+        <div className="bg-white dark:bg-slate-800 rounded-[3rem] border border-slate-200 dark:border-slate-700 shadow-sm/5 overflow-hidden transition-colors duration-300">
+          <div className="px-10 py-8 border-b border-slate-100 dark:border-slate-700 flex items-center justify-between bg-slate-50/50 dark:bg-slate-800/50 transition-colors duration-300">
+            <h3 className="text-lg font-black text-slate-900 dark:text-white tracking-tight flex items-center gap-3 transition-colors duration-300">
+              <History size={20} className="text-emerald-600 dark:text-emerald-400" />
               Digital Ledger
-              <span className="bg-slate-200 text-slate-500 text-[10px] px-2 py-0.5 rounded-md">{totalCount} Entries</span>
+              <span className="bg-slate-200 dark:bg-slate-700 text-slate-500 dark:text-slate-300 text-[10px] px-2 py-0.5 rounded-md transition-colors duration-300">{totalCount} Entries</span>
             </h3>
             <div className="flex items-center gap-4">
-               <span className="text-[10px] font-black uppercase text-slate-400 tracking-widest">Sort: Newest First</span>
+               <span className="text-[10px] font-black uppercase text-slate-400 dark:text-slate-500 tracking-widest">Sort: Newest First</span>
             </div>
           </div>
 
           <div className="overflow-x-auto">
             <table className="w-full">
-               <thead className="bg-slate-900 text-slate-400">
+               <thead className="bg-slate-900 dark:bg-slate-950 text-slate-400 transition-colors duration-300">
                   <tr>
                     <th className="px-10 py-4 text-left text-[10px] font-black uppercase tracking-widest">Date & Context</th>
                     <th className="px-10 py-4 text-right text-[10px] font-black uppercase tracking-widest">Gave (₹)</th>
                     <th className="px-10 py-4 text-right text-[10px] font-black uppercase tracking-widest">Got (₹)</th>
                   </tr>
                </thead>
-               <tbody className="divide-y divide-slate-100 relative">
+               <tbody className="divide-y divide-slate-100 dark:divide-slate-700 relative">
                   {txLoading && (
-                    <div className="absolute inset-0 bg-white/60 backdrop-blur-[2px] flex items-center justify-center z-10">
-                       <Loader2 className="animate-spin text-emerald-600" size={32} />
+                    <div className="absolute inset-0 bg-white/60 dark:bg-slate-800/60 backdrop-blur-[2px] flex items-center justify-center z-10 transition-colors duration-300">
+                       <Loader2 className="animate-spin text-emerald-600 dark:text-emerald-400" size={32} />
                     </div>
                   )}
 
                   {transactions.length === 0 ? (
                     <tr>
                        <td colSpan="3" className="py-24 text-center">
-                          <div className="bg-slate-50 w-20 h-20 rounded-[2rem] flex items-center justify-center mx-auto mb-6 text-slate-300">
+                          <div className="bg-slate-50 dark:bg-slate-900/50 w-20 h-20 rounded-[2rem] flex items-center justify-center mx-auto mb-6 text-slate-300 dark:text-slate-600 transition-colors duration-300">
                              <Receipt size={32} />
                           </div>
                           <p className="text-slate-500 font-bold tracking-widest uppercase text-xs">No transactions recorded yet.</p>
@@ -400,29 +411,29 @@ export default function CustomerKhata() {
                     </tr>
                   ) : (
                     transactions.map((tx, idx) => (
-                      <tr key={tx.id} className={`group hover:bg-slate-50/80 transition-colors ${idx % 2 === 0 ? 'bg-white' : 'bg-slate-50/30'}`}>
+                      <tr key={tx.id} className={`group hover:bg-slate-50/80 dark:hover:bg-slate-700/50 transition-colors ${idx % 2 === 0 ? 'bg-white dark:bg-slate-800' : 'bg-slate-50/30 dark:bg-slate-800/50'}`}>
                          <td className="px-10 py-6">
                             <div className="flex items-center gap-4">
-                               <div className="w-10 h-10 rounded-xl bg-slate-50 border border-slate-100 flex items-center justify-center text-slate-400 group-hover:bg-slate-900 group-hover:text-white transition-all">
+                               <div className="w-10 h-10 rounded-xl bg-slate-50 dark:bg-slate-700 border border-slate-100 dark:border-slate-600 flex items-center justify-center text-slate-400 group-hover:bg-slate-900 dark:group-hover:bg-slate-600 group-hover:text-white transition-all">
                                   <Calendar size={16} />
                                </div>
                                <div>
-                                  <p className="font-black text-slate-900 tracking-tight leading-none">
+                                  <p className="font-black text-slate-900 dark:text-white tracking-tight leading-none transition-colors duration-300">
                                     {new Date(tx.date).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}
                                   </p>
-                                  <p className="text-[11px] font-bold text-slate-400 mt-1.5 group-hover:text-slate-600 transition-colors">{tx.note}</p>
+                                  <p className="text-[11px] font-bold text-slate-400 dark:text-slate-500 mt-1.5 group-hover:text-slate-600 dark:group-hover:text-slate-300 transition-colors">{tx.note}</p>
                                </div>
                             </div>
                          </td>
                          <td className="px-10 py-6 text-right">
                             {tx.type === 'CREDIT' ? (
-                               <span className="font-black text-lg text-rose-600">₹ {Number(tx.amount).toLocaleString('en-IN')}</span>
-                            ) : <span className="text-slate-200">--</span>}
+                               <span className="font-black text-lg text-rose-600 dark:text-rose-400">₹ {Number(tx.amount).toLocaleString('en-IN')}</span>
+                            ) : <span className="text-slate-200 dark:text-slate-600">--</span>}
                          </td>
                          <td className="px-10 py-6 text-right">
                             {tx.type === 'PAYMENT' ? (
-                               <span className="font-black text-lg text-emerald-600">₹ {Number(tx.amount).toLocaleString('en-IN')}</span>
-                            ) : <span className="text-slate-200">--</span>}
+                               <span className="font-black text-lg text-emerald-600 dark:text-emerald-400">₹ {Number(tx.amount).toLocaleString('en-IN')}</span>
+                            ) : <span className="text-slate-200 dark:text-slate-600">--</span>}
                          </td>
                       </tr>
                     ))
@@ -433,11 +444,11 @@ export default function CustomerKhata() {
 
           {/* Pagination Controls */}
           {totalCount > 0 && (
-            <div className="px-10 py-8 bg-slate-50 flex flex-col sm:flex-row items-center justify-between gap-6 border-t border-slate-100">
+            <div className="px-10 py-8 bg-slate-50 dark:bg-slate-800/50 flex flex-col sm:flex-row items-center justify-between gap-6 border-t border-slate-100 dark:border-slate-700 transition-colors duration-300">
                <div className="flex items-center gap-2">
                   <div className="h-2 w-2 rounded-full bg-emerald-500" />
                   <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none pt-0.5">
-                    Page <span className="text-slate-900">{currentPage}</span> of <span className="text-slate-900">{totalPages}</span>
+                    Page <span className="text-slate-900 dark:text-white">{currentPage}</span> of <span className="text-slate-900 dark:text-white">{totalPages}</span>
                   </p>
                </div>
                
@@ -445,14 +456,14 @@ export default function CustomerKhata() {
                   <button 
                     disabled={currentPage === 1 || txLoading}
                     onClick={() => loadTransactions(currentPage - 1)}
-                    className="p-3 bg-white border border-slate-200 rounded-xl text-slate-400 hover:text-emerald-600 hover:border-emerald-200 disabled:opacity-40 transition-all shadow-sm active:scale-95"
+                    className="p-3 bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl text-slate-400 dark:text-slate-300 hover:text-emerald-600 dark:hover:text-emerald-400 hover:border-emerald-200 dark:hover:border-emerald-700 disabled:opacity-40 transition-all shadow-sm active:scale-95"
                   >
                     <ChevronLeft size={20} />
                   </button>
                   <button 
                     disabled={currentPage === totalPages || txLoading}
                     onClick={() => loadTransactions(currentPage + 1)}
-                    className="p-3 bg-white border border-slate-200 rounded-xl text-slate-400 hover:text-emerald-600 hover:border-emerald-200 disabled:opacity-40 transition-all shadow-sm active:scale-95"
+                    className="p-3 bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl text-slate-400 dark:text-slate-300 hover:text-emerald-600 dark:hover:text-emerald-400 hover:border-emerald-200 dark:hover:border-emerald-700 disabled:opacity-40 transition-all shadow-sm active:scale-95"
                   >
                     <ChevronRight size={20} />
                   </button>
@@ -478,7 +489,7 @@ export default function CustomerKhata() {
                initial={{ opacity: 0, scale: 0.95, y: 20 }}
                animate={{ opacity: 1, scale: 1, y: 0 }}
                exit={{ opacity: 0, scale: 0.95, y: 20 }}
-               className="relative bg-white rounded-[3rem] shadow-2xl w-full max-w-md overflow-hidden z-10"
+               className="relative bg-white dark:bg-slate-900 rounded-[3rem] shadow-2xl w-full max-w-md overflow-hidden z-10 transition-colors duration-300"
             >
               <div className={`p-10 text-white relative overflow-hidden ${transactionType === 'CREDIT' ? 'bg-rose-600' : 'bg-emerald-600'}`}>
                 <div className="absolute top-0 right-0 -mr-16 -mt-16 w-48 h-48 bg-white/20 rounded-full blur-3xl opacity-50" />
@@ -508,7 +519,7 @@ export default function CustomerKhata() {
                         value={amount}
                         onChange={(e) => setAmount(e.target.value)}
                         placeholder="0.00"
-                        className={`w-full pl-12 pr-6 py-5 bg-slate-50 border border-slate-200 rounded-2xl focus:outline-none focus:ring-4 transition-all font-black text-2xl text-slate-900 placeholder:text-slate-200 ${transactionType === 'CREDIT' ? 'focus:ring-rose-600/5 focus:border-rose-600' : 'focus:ring-emerald-600/5 focus:border-emerald-600'}`}
+                        className={`w-full pl-12 pr-6 py-5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl focus:outline-none focus:ring-4 transition-all font-black text-2xl text-slate-900 dark:text-white placeholder:text-slate-200 dark:placeholder:text-slate-600 ${transactionType === 'CREDIT' ? 'focus:ring-rose-600/5 focus:border-rose-600' : 'focus:ring-emerald-600/5 focus:border-emerald-600'}`}
                       />
                    </div>
                 </div>
@@ -520,7 +531,7 @@ export default function CustomerKhata() {
                      onChange={(e) => setNote(e.target.value)}
                      placeholder="e.g. 5kg Sugar, 2L Milk..."
                      rows={3}
-                     className={`w-full px-6 py-5 bg-slate-50 border border-slate-200 rounded-2xl focus:outline-none focus:ring-4 transition-all font-medium text-slate-900 placeholder:text-slate-300 ${transactionType === 'CREDIT' ? 'focus:ring-rose-600/5 focus:border-rose-600' : 'focus:ring-emerald-600/5 focus:border-emerald-600'}`}
+                     className={`w-full px-6 py-5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl focus:outline-none focus:ring-4 transition-all font-medium text-slate-900 dark:text-white placeholder:text-slate-300 dark:placeholder:text-slate-600 ${transactionType === 'CREDIT' ? 'focus:ring-rose-600/5 focus:border-rose-600' : 'focus:ring-emerald-600/5 focus:border-emerald-600'}`}
                    />
                 </div>
 
@@ -551,14 +562,14 @@ export default function CustomerKhata() {
                  initial={{ opacity: 0, scale: 0.95 }}
                  animate={{ opacity: 1, scale: 1 }}
                  exit={{ opacity: 0, scale: 0.95 }}
-                 className="relative bg-white rounded-[3rem] shadow-2xl w-full max-w-md p-10 z-10"
+                 className="relative bg-white dark:bg-slate-900 rounded-[3rem] shadow-2xl w-full max-w-md p-10 z-10 transition-colors duration-300"
               >
-                 <div className="w-20 h-20 bg-rose-50 text-rose-600 rounded-3xl flex items-center justify-center mb-8 mx-auto">
+                 <div className="w-20 h-20 bg-rose-50 dark:bg-rose-900/30 text-rose-600 dark:text-rose-400 rounded-3xl flex items-center justify-center mb-8 mx-auto">
                     <AlertTriangle size={40} />
                  </div>
-                 <h3 className="text-2xl font-black text-slate-900 text-center tracking-tight">Dangerous Action</h3>
-                 <p className="text-slate-500 text-center text-sm font-medium mt-2 leading-relaxed">
-                    This will permanently delete <span className="text-slate-900 font-bold">{customer?.name}'s</span> profile and all <span className="text-slate-900 font-bold">{totalCount}</span> transactions. This cannot be undone.
+                 <h3 className="text-2xl font-black text-slate-900 dark:text-white text-center tracking-tight">Dangerous Action</h3>
+                 <p className="text-slate-500 dark:text-slate-400 text-center text-sm font-medium mt-2 leading-relaxed">
+                    This will permanently delete <span className="text-slate-900 dark:text-white font-bold">{customer?.name}'s</span> profile and all <span className="text-slate-900 dark:text-white font-bold">{totalCount}</span> transactions. This cannot be undone.
                  </p>
 
                  <div className="mt-10 space-y-4">
@@ -569,7 +580,7 @@ export default function CustomerKhata() {
                          value={deleteConfirm} 
                          onChange={(e) => setDeleteConfirm(e.target.value.toUpperCase())}
                          placeholder="DELETE" 
-                         className="w-full px-6 py-4 bg-slate-50 border border-slate-200 rounded-2xl focus:outline-none focus:ring-4 focus:ring-rose-600/5 focus:border-rose-600 focus:bg-white text-center font-black tracking-[0.5em] transition-all"
+                         className="w-full px-6 py-4 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl focus:outline-none focus:ring-4 focus:ring-rose-600/5 focus:border-rose-600 focus:bg-white dark:focus:bg-slate-800 text-center font-black tracking-[0.5em] transition-all text-slate-900 dark:text-white"
                        />
                     </div>
                     
@@ -585,7 +596,7 @@ export default function CustomerKhata() {
                     <button 
                       disabled={isDeleting}
                       onClick={() => { setIsDeleteModalOpen(false); setDeleteConfirm(''); }}
-                      className="w-full py-5 bg-slate-50 text-slate-500 rounded-2xl font-black text-lg hover:bg-slate-100 transition-all"
+                      className="w-full py-5 bg-slate-50 dark:bg-slate-800 text-slate-500 dark:text-slate-400 rounded-2xl font-black text-lg hover:bg-slate-100 dark:hover:bg-slate-700 transition-all"
                     >
                       Cancel & Keep Data
                     </button>
@@ -611,7 +622,7 @@ export default function CustomerKhata() {
                initial={{ opacity: 0, scale: 0.95, y: 20 }}
                animate={{ opacity: 1, scale: 1, y: 0 }}
                exit={{ opacity: 0, scale: 0.95, y: 20 }}
-               className="relative bg-white rounded-[3rem] shadow-2xl w-full max-w-md overflow-hidden z-10"
+               className="relative bg-white dark:bg-slate-900 rounded-[3rem] shadow-2xl w-full max-w-md overflow-hidden z-10 transition-colors duration-300"
             >
               <div className="p-10 bg-slate-900 text-white relative overflow-hidden">
                 <div className="absolute top-0 right-0 -mr-16 -mt-16 w-48 h-48 bg-white/5 rounded-full blur-3xl opacity-50" />
@@ -646,7 +657,7 @@ export default function CustomerKhata() {
                           if (editErrors.name) setEditErrors(p => ({ ...p, name: '' }));
                         }}
                         placeholder="e.g. John Doe"
-                        className={`w-full pl-14 pr-6 py-4 bg-slate-50 border rounded-2xl focus:outline-none focus:ring-4 focus:bg-white transition-all font-bold text-slate-900 ${editErrors.name ? 'border-rose-500 focus:ring-rose-500/5 focus:border-rose-500' : 'border-slate-200 focus:ring-emerald-600/5 focus:border-emerald-600'}`}
+                        className={`w-full pl-14 pr-6 py-4 bg-slate-50 dark:bg-slate-800 border rounded-2xl focus:outline-none focus:ring-4 focus:bg-white dark:focus:bg-slate-800 transition-all font-bold text-slate-900 dark:text-white ${editErrors.name ? 'border-rose-500 focus:ring-rose-500/5 focus:border-rose-500' : 'border-slate-200 dark:border-slate-700 focus:ring-emerald-600/5 focus:border-emerald-600'}`}
                       />
                    </div>
                    {editErrors.name && <p className="text-rose-500 text-[10px] font-bold uppercase tracking-widest px-14">{editErrors.name}</p>}
@@ -666,7 +677,7 @@ export default function CustomerKhata() {
                           if (editErrors.phone) setEditErrors(p => ({ ...p, phone: '' }));
                         }}
                         placeholder="e.g. 9876543210"
-                        className={`w-full pl-14 pr-6 py-4 bg-slate-50 border rounded-2xl focus:outline-none focus:ring-4 focus:bg-white transition-all font-bold text-slate-900 ${editErrors.phone ? 'border-rose-500 focus:ring-rose-500/5 focus:border-rose-500' : 'border-slate-200 focus:ring-emerald-600/5 focus:border-emerald-600'}`}
+                        className={`w-full pl-14 pr-6 py-4 bg-slate-50 dark:bg-slate-800 border rounded-2xl focus:outline-none focus:ring-4 focus:bg-white dark:focus:bg-slate-800 transition-all font-bold text-slate-900 dark:text-white ${editErrors.phone ? 'border-rose-500 focus:ring-rose-500/5 focus:border-rose-500' : 'border-slate-200 dark:border-slate-700 focus:ring-emerald-600/5 focus:border-emerald-600'}`}
                       />
                    </div>
                    {editErrors.phone && (
