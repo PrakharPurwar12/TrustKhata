@@ -12,10 +12,11 @@ export const transactionService = {
         }
         return normalizeTransactions(data);
     },
-    async getByCustomer(customerId, page = 1) {
-        const data = await api.get('transactions/', {
-            params: { customer: customerId, page },
-        });
+    async getByCustomer(customerId, page = 1, sort = '', type = '') {
+        const params = { customer: customerId, page };
+        if (sort) params.sort = sort;
+        if (type && type !== 'ALL') params.type = type;
+        const data = await api.get('transactions/', { params });
         if (data.results) {
             return {
                 ...data,

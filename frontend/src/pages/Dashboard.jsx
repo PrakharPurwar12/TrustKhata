@@ -24,6 +24,7 @@ import { parseApiError } from '../utils/apiError';
 import { toNumber } from '../utils/normalizers';
 import { isValidPhone, normalizePhone } from '../utils/phoneValidation';
 import { useTheme } from '../context/ThemeContext';
+import { CustomerCardSkeleton } from '../components/Skeleton';
 
 export default function Dashboard() {
   const navigate = useNavigate();
@@ -57,6 +58,8 @@ export default function Dashboard() {
     name: '',
     phone: '',
   });
+
+  const [sortOrder, setSortOrder] = useState('newest');
 
   // Debounce search effect (300ms)
   useEffect(() => {
@@ -164,13 +167,21 @@ export default function Dashboard() {
     }
   };
 
-  // Local filtering logic within the current fetched page
+  // Local filtering and sorting logic within the current fetched page
   const filteredCustomers = useMemo(() => {
-    return customers.filter(c => 
+    let result = customers.filter(c => 
       c.name?.toLowerCase().includes(debouncedSearch.toLowerCase()) || 
       c.phone?.includes(debouncedSearch)
     );
-  }, [customers, debouncedSearch]);
+    
+    if (sortOrder === 'amount_owed') {
+      result = [...result].sort((a, b) => Number(a.balance || 0) - Number(b.balance || 0));
+    } else if (sortOrder === 'az') {
+      result = [...result].sort((a, b) => (a.name || '').localeCompare(b.name || ''));
+    }
+    
+    return result;
+  }, [customers, debouncedSearch, sortOrder]);
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-900 font-sans text-slate-900 dark:text-slate-100 selection:bg-emerald-100 selection:text-emerald-900 transition-colors duration-300">
@@ -302,12 +313,23 @@ export default function Dashboard() {
                 </button>
               )}
             </div>
+            
+            <div className="flex gap-3 w-full lg:w-auto">
+              <select 
+                value={sortOrder}
+                onChange={(e) => setSortOrder(e.target.value)}
+                className="bg-slate-50 dark:bg-slate-900 text-xs font-bold uppercase text-slate-600 dark:text-slate-400 tracking-wider px-4 py-4 rounded-2xl border border-slate-200 dark:border-slate-700 outline-none cursor-pointer focus:ring-4 focus:ring-emerald-600/5 focus:border-emerald-600 dark:focus:border-emerald-500 transition-all w-full lg:w-auto"
+              >
+                <option value="newest">Newest First</option>
+                <option value="amount_owed">Highest Owed</option>
+                <option value="az">A-Z Name</option>
+              </select>
+            </div>
           </div>
 
           {loading && (
-            <div className="flex flex-col items-center justify-center py-24 space-y-4">
-               <Loader2 size={48} className="animate-spin text-emerald-600" />
-               <p className="text-slate-500 font-bold tracking-widest uppercase text-xs">Synchronizing your ledger...</p>
+            <div className="space-y-4">
+               {[1, 2, 3].map(i => <CustomerCardSkeleton key={i} />)}
             </div>
           )}
 
@@ -532,6 +554,15 @@ export default function Dashboard() {
           </div>
         </div>
       )}
+
+      {/* Mobile Floating Action Button (FAB) */}
+      <button 
+        onClick={() => setIsModalOpen(true)}
+        className="sm:hidden fixed bottom-6 right-6 w-14 h-14 bg-emerald-600 text-white rounded-2xl flex items-center justify-center shadow-2xl shadow-emerald-600/30 active:scale-95 transition-all z-30"
+        aria-label="Add Customer"
+      >
+        <Plus size={28} strokeWidth={3} />
+      </button>
     </div>
   );
 }

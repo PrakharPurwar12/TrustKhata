@@ -34,6 +34,7 @@ import { transactionService } from '../services/transactionService';
 import { parseApiError } from '../utils/apiError';
 import { isValidPhone, normalizePhone } from '../utils/phoneValidation';
 import { useTheme } from '../context/ThemeContext';
+import { TransactionSkeleton } from '../components/Skeleton';
 
 export default function CustomerKhata() {
   const { id } = useParams();
@@ -58,10 +59,13 @@ export default function CustomerKhata() {
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [deleteConfirm, setDeleteConfirm] = useState('');
+  const [txSort, setTxSort] = useState('newest');
+  const [txFilter, setTxFilter] = useState('ALL');
   
   const [transactionType, setTransactionType] = useState('CREDIT');
   const [amount, setAmount] = useState('');
   const [note, setNote] = useState('');
+  const [txDate, setTxDate] = useState(new Date().toISOString().split('T')[0]);
 
   // Edit State
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
@@ -81,10 +85,10 @@ export default function CustomerKhata() {
   };
 
   // 2. Fetch Transactions (Paginated)
-  const loadTransactions = async (page = 1) => {
+  const loadTransactions = useCallback(async (page = 1) => {
     try {
       setTxLoading(true);
-      const data = await transactionService.getByCustomer(id, page);
+      const data = await transactionService.getByCustomer(id, page, txSort, txFilter);
       setTransactions(data.results || []);
       setTotalCount(data.count || 0);
       setTotalPages(Math.ceil((data.count || 0) / 20));
@@ -94,13 +98,17 @@ export default function CustomerKhata() {
     } finally {
       setTxLoading(false);
     }
-  };
+  }, [id, txSort, txFilter]);
 
   const initialLoad = useCallback(async () => {
     setLoading(true);
     await Promise.all([loadCustomer(), loadTransactions(1)]);
     setLoading(false);
   }, [id]);
+
+  useEffect(() => {
+    loadTransactions(1);
+  }, [txSort, txFilter, loadTransactions]);
 
   useEffect(() => {
     initialLoad();
@@ -116,12 +124,14 @@ export default function CustomerKhata() {
         customer: id,
         amount: Number(amount),
         type: transactionType,
-        note: note || (transactionType === 'CREDIT' ? 'Items sold' : 'Payment received')
+        note: note || (transactionType === 'CREDIT' ? 'Items sold' : 'Payment received'),
+        date: txDate
       });
       
       setIsModalOpen(false);
       setAmount('');
       setNote('');
+      setTxDate(new Date().toISOString().split('T')[0]);
       toast.success('Transaction recorded');
       // Refresh both to update balances
       await Promise.all([loadCustomer(), loadTransactions(1)]);
@@ -380,7 +390,23 @@ export default function CustomerKhata() {
               <span className="bg-slate-200 dark:bg-slate-700 text-slate-500 dark:text-slate-300 text-[10px] px-2 py-0.5 rounded-md transition-colors duration-300">{totalCount} Entries</span>
             </h3>
             <div className="flex items-center gap-4">
-               <span className="text-[10px] font-black uppercase text-slate-400 dark:text-slate-500 tracking-widest">Sort: Newest First</span>
+               <select 
+                 value={txFilter}
+                 onChange={(e) => setTxFilter(e.target.value)}
+                 className="bg-slate-50 dark:bg-slate-800 text-[10px] font-black uppercase text-slate-600 dark:text-slate-400 tracking-widest px-3 py-2 rounded-lg border border-slate-200 dark:border-slate-700 outline-none cursor-pointer"
+               >
+                 <option value="ALL">All Entries</option>
+                 <option value="CREDIT">Gave Only</option>
+                 <option value="PAYMENT">Got Only</option>
+               </select>
+               <select 
+                 value={txSort}
+                 onChange={(e) => setTxSort(e.target.value)}
+                 className="bg-slate-50 dark:bg-slate-800 text-[10px] font-black uppercase text-slate-600 dark:text-slate-400 tracking-widest px-3 py-2 rounded-lg border border-slate-200 dark:border-slate-700 outline-none cursor-pointer"
+               >
+                 <option value="newest">Newest First</option>
+                 <option value="oldest">Oldest First</option>
+               </select>
             </div>
           </div>
 
@@ -394,13 +420,13 @@ export default function CustomerKhata() {
                   </tr>
                </thead>
                <tbody className="divide-y divide-slate-100 dark:divide-slate-700 relative">
-                  {txLoading && (
-                    <div className="absolute inset-0 bg-white/60 dark:bg-slate-800/60 backdrop-blur-[2px] flex items-center justify-center z-10 transition-colors duration-300">
-                       <Loader2 className="animate-spin text-emerald-600 dark:text-emerald-400" size={32} />
-                    </div>
-                  )}
-
-                  {transactions.length === 0 ? (
+                  {txLoading ? (
+                    <>
+                      <TransactionSkeleton />
+                      <TransactionSkeleton />
+                      <TransactionSkeleton />
+                    </>
+                  ) : transactions.length === 0 ? (
                     <tr>
                        <td colSpan="3" className="py-24 text-center">
                           <div className="bg-slate-50 dark:bg-slate-900/50 w-20 h-20 rounded-[2rem] flex items-center justify-center mx-auto mb-6 text-slate-300 dark:text-slate-600 transition-colors duration-300">
@@ -526,13 +552,24 @@ export default function CustomerKhata() {
 
                 <div className="space-y-2">
                    <label className="block text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Notes / Items</label>
-                   <textarea 
-                     value={note}
-                     onChange={(e) => setNote(e.target.value)}
-                     placeholder="e.g. 5kg Sugar, 2L Milk..."
-                     rows={3}
-                     className={`w-full px-6 py-5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl focus:outline-none focus:ring-4 transition-all font-medium text-slate-900 dark:text-white placeholder:text-slate-300 dark:placeholder:text-slate-600 ${transactionType === 'CREDIT' ? 'focus:ring-rose-600/5 focus:border-rose-600' : 'focus:ring-emerald-600/5 focus:border-emerald-600'}`}
-                   />
+                   <div className="grid grid-cols-2 gap-4">
+                     <textarea 
+                       value={note}
+                       onChange={(e) => setNote(e.target.value)}
+                       placeholder="e.g. 5kg Sugar, 2L Milk..."
+                       rows={2}
+                       className={`w-full px-6 py-4 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl focus:outline-none focus:ring-4 transition-all font-medium text-slate-900 dark:text-white placeholder:text-slate-300 dark:placeholder:text-slate-600 ${transactionType === 'CREDIT' ? 'focus:ring-rose-600/5 focus:border-rose-600' : 'focus:ring-emerald-600/5 focus:border-emerald-600'}`}
+                     />
+                     <div className="flex flex-col">
+                       <input 
+                         type="date"
+                         required
+                         value={txDate}
+                         onChange={(e) => setTxDate(e.target.value)}
+                         className={`w-full px-6 py-4 h-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl focus:outline-none focus:ring-4 transition-all font-bold text-slate-900 dark:text-white ${transactionType === 'CREDIT' ? 'focus:ring-rose-600/5 focus:border-rose-600 text-rose-600 dark:text-rose-400' : 'focus:ring-emerald-600/5 focus:border-emerald-600 text-emerald-600 dark:text-emerald-400'}`}
+                       />
+                     </div>
+                   </div>
                 </div>
 
                 <button 
@@ -706,6 +743,15 @@ export default function CustomerKhata() {
           </div>
         )}
       </AnimatePresence>
+
+      {/* Mobile Floating Action Button (FAB) */}
+      <button 
+        onClick={() => { setTransactionType('CREDIT'); setIsModalOpen(true); }}
+        className="sm:hidden fixed bottom-6 right-6 w-14 h-14 bg-rose-600 text-white rounded-2xl flex items-center justify-center shadow-2xl shadow-rose-600/30 active:scale-95 transition-all z-30"
+        aria-label="Add Transaction"
+      >
+        <Plus size={28} strokeWidth={3} />
+      </button>
     </motion.div>
   );
 }

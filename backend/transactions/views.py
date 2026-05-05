@@ -27,6 +27,16 @@ def transaction_list_view(request):
             return error_response("Invalid customer filter", code="validation_error")
         transactions_qs = transactions_qs.filter(customer_id=customer_id)
 
+    tx_type = request.query_params.get("type")
+    if tx_type in ['CREDIT', 'PAYMENT']:
+        transactions_qs = transactions_qs.filter(type=tx_type)
+        
+    sort_order = request.query_params.get("sort")
+    if sort_order == "oldest":
+        transactions_qs = transactions_qs.order_by('date')
+    else:
+        transactions_qs = transactions_qs.order_by('-date')
+
     if request.method == "GET":
         paginator = PageNumberPagination()
         paginator.page_size = request.query_params.get("page_size", 20)
