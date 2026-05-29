@@ -11,6 +11,15 @@ import { sampleCustomers, sampleTransactions } from '../utils/demoData';
 import { useTheme } from '../context/ThemeContext';
 import { Sun, Moon } from 'lucide-react';
 
+const formatDate = (date) => {
+  if (!date) return 'No activity yet';
+  return new Date(date).toLocaleDateString('en-IN', {
+    day: 'numeric',
+    month: 'short',
+    year: 'numeric',
+  });
+};
+
 const Customers = () => {
   const [customers, setCustomers] = useState(sampleCustomers);
   const [transactions, setTransactions] = useState(sampleTransactions);
@@ -29,7 +38,7 @@ const Customers = () => {
         setTransactions(
           transactionResponse.data?.length ? transactionResponse.data : sampleTransactions
         );
-      } catch (error) {
+      } catch {
         setCustomers(sampleCustomers);
         setTransactions(sampleTransactions);
       }

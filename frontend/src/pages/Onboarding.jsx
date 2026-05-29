@@ -20,8 +20,8 @@ export default function Onboarding() {
         const res = await userService.getCurrentShop();
         setShopName(res.data.name || '');
         setCategory(res.data.category || '');
-      } catch (e) {
-        console.error(e);
+      } catch (error) {
+        console.error(error);
       }
     };
     fetchCurrent();

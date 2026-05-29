@@ -1,0 +1,29 @@
+services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    environment:
+      DJANGO_DEBUG: "True"
+      DJANGO_SECRET_KEY: "change-me-in-production"
+      DJANGO_ALLOWED_HOSTS: "localhost,127.0.0.1,backend"
+      DJANGO_FRONTEND_ORIGINS: "http://localhost:8081,http://127.0.0.1:8081"
+      DJANGO_DB_NAME: "/data/db.sqlite3"
+    volumes:
+      - backend-data:/data
+    expose:
+      - "8000"
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        VITE_API_BASE_URL: "/api/"
+    depends_on:
+      - backend
+    ports:
+      - "8081:80"
+
+volumes:
+  backend-data:

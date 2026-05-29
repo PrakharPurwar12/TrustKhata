@@ -36,6 +36,7 @@ class Migration(migrations.Migration):
 
     dependencies = [
         ("customers", "0001_initial"),
+        ("transactions", "0001_initial"),
     ]
 
     operations = [

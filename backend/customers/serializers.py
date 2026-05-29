@@ -11,9 +11,13 @@ def normalize_phone(value):
 class CustomerSerializer(serializers.ModelSerializer):
     name = serializers.CharField(required=False, allow_blank=False)
     phone = serializers.CharField(required=False, allow_blank=False)
-    balance = serializers.DecimalField(max_digits=10, decimal_places=2, read_only=True)
-    total_credit = serializers.DecimalField(max_digits=10, decimal_places=2, read_only=True)
-    total_payment = serializers.DecimalField(max_digits=10, decimal_places=2, read_only=True)
+    balance = serializers.DecimalField(max_digits=12, decimal_places=2, read_only=True)
+    total_credit = serializers.DecimalField(max_digits=12, decimal_places=2, read_only=True)
+    # source='total_paid' maps the model field to the legacy API key 'total_payment'
+    # so the frontend receives the same JSON key it always has.
+    total_payment = serializers.DecimalField(
+        max_digits=12, decimal_places=2, read_only=True, source='total_paid'
+    )
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

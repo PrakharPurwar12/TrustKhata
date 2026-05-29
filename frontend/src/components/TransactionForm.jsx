@@ -34,7 +34,7 @@ const TransactionForm = ({ customerId, onCreated }) => {
       onCreated?.(response.data);
       setFormData(initialForm);
       setStatus('saved');
-    } catch (error) {
+    } catch {
       onCreated?.({ ...payload, id: Date.now() });
       setFormData(initialForm);
       setStatus('offline');

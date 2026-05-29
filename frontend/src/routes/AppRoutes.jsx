@@ -9,6 +9,7 @@ import Dashboard from '../pages/Dashboard';
 import CustomerKhata from '../pages/CustomerKhata';
 import Profile from '../pages/Profile';
 import Customers from '../pages/Customers';
+import Insights from '../pages/Insights';
 
 const AppRoutes = () => {
   const location = useLocation();
@@ -26,6 +27,7 @@ const AppRoutes = () => {
           <Route path="/customers" element={<Customers />} />
           <Route path="/customer/:id" element={<CustomerKhata />} />
           <Route path="/profile" element={<Profile />} />
+          <Route path="/insights" element={<Insights />} />
           <Route path="*" element={<Navigate replace to="/" />} />
         </Routes>
       </AnimatePresence>

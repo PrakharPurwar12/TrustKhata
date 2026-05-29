@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useMemo } from 'react';
+import React, { useCallback, useEffect, useState, useMemo } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import { 
@@ -15,7 +15,8 @@ import {
   UserPlus,
   User,
   Sun,
-  Moon
+  Moon,
+  BarChart3
 } from 'lucide-react';
 import { customerService } from '../services/customerService';
 import { transactionService } from '../services/transactionService';
@@ -69,7 +70,7 @@ export default function Dashboard() {
     return () => clearTimeout(handler);
   }, [searchQuery]);
 
-  const loadDashboard = async (page = 1) => {
+  const loadDashboard = useCallback(async (page = 1) => {
     try {
       setLoading(true);
       const [meRes, customerRes, summaryRes] = await Promise.all([
@@ -99,17 +100,17 @@ export default function Dashboard() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [navigate]);
 
   useEffect(() => {
     loadDashboard();
-  }, [navigate]);
+  }, [loadDashboard]);
 
   const handleLogout = async () => {
     try {
       await userService.logout();
       navigate('/login');
-    } catch (e) {
+    } catch {
       navigate('/login');
     }
   };
@@ -236,13 +237,22 @@ export default function Dashboard() {
             <h1 className="text-3xl font-extrabold tracking-tight text-slate-900 dark:text-white transition-colors duration-300">Merchant Dashboard</h1>
             <p className="text-slate-500 dark:text-slate-400 font-medium">Monitoring business khata for <span className="text-emerald-600 dark:text-emerald-400 font-bold">{shopName}</span></p>
           </div>
-          <button 
-            onClick={() => setIsModalOpen(true)}
-            className="flex items-center justify-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white px-6 py-3.5 rounded-2xl font-bold shadow-lg shadow-emerald-600/20 transition-all hover:-translate-y-0.5 active:translate-y-0"
-          >
-            <Plus size={20} strokeWidth={3} />
-            Add Customer
-          </button>
+          <div className="flex gap-3">
+            <Link 
+              to="/insights"
+              className="flex items-center justify-center gap-2 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 px-6 py-3.5 rounded-2xl font-bold transition-all hover:-translate-y-0.5 active:translate-y-0"
+            >
+              <BarChart3 size={20} strokeWidth={2.5} />
+              Insights
+            </Link>
+            <button 
+              onClick={() => setIsModalOpen(true)}
+              className="flex items-center justify-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white px-6 py-3.5 rounded-2xl font-bold shadow-lg shadow-emerald-600/20 transition-all hover:-translate-y-0.5 active:translate-y-0"
+            >
+              <Plus size={20} strokeWidth={3} />
+              Add Customer
+            </button>
+          </div>
         </div>
 
         {/* Global Stats Grid */}
@@ -383,7 +393,7 @@ export default function Dashboard() {
                         <div>
                           <p className="font-black text-slate-900 dark:text-white text-lg tracking-tight group-hover:text-emerald-700 dark:group-hover:text-emerald-400 transition-colors">{customer.name}</p>
                           <p className="text-xs font-bold text-slate-400 tracking-wider flex items-center gap-1.5 uppercase mt-1">
-                             <div className="w-1 h-1 bg-slate-300 rounded-full" />
+                             <span className="w-1 h-1 bg-slate-300 rounded-full" />
                              {customer.phone || 'Contact not set'}
                           </p>
                         </div>

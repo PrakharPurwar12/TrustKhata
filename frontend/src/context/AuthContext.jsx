@@ -1,5 +1,7 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 
+/* eslint-disable react-refresh/only-export-components */
+
 const AuthContext = createContext(null);
 const storageKey = 'trustkhata-user';
 

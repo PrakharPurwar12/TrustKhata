@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback, useMemo } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import toast from 'react-hot-toast';
@@ -74,7 +74,7 @@ export default function CustomerKhata() {
   const [editErrors, setEditErrors] = useState({ name: '', phone: '' });
 
   // 1. Fetch Customer Details (Metadata + Balances)
-  const loadCustomer = async () => {
+  const loadCustomer = useCallback(async () => {
     try {
       const data = await customerService.getById(id);
       setCustomer(data);
@@ -82,7 +82,7 @@ export default function CustomerKhata() {
       toast.error(parseApiError(err, 'Failed to load customer profile'));
       if (err.status === 404) navigate('/dashboard');
     }
-  };
+  }, [id, navigate]);
 
   // 2. Fetch Transactions (Paginated)
   const loadTransactions = useCallback(async (page = 1) => {
@@ -104,7 +104,7 @@ export default function CustomerKhata() {
     setLoading(true);
     await Promise.all([loadCustomer(), loadTransactions(1)]);
     setLoading(false);
-  }, [id]);
+  }, [loadCustomer, loadTransactions]);
 
   useEffect(() => {
     loadTransactions(1);
@@ -183,8 +183,8 @@ export default function CustomerKhata() {
       await deleteCustomer(id);
       toast.success("Customer deleted successfully");
       navigate("/dashboard"); 
-    } catch (error) {
-      toast.error(parseApiError(error));
+    } catch (err) {
+      toast.error(parseApiError(err));
     } finally {
       setIsDeleting(false);
     }

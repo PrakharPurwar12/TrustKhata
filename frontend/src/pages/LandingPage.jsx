@@ -20,6 +20,7 @@ const FadeIn = ({ children, delay = 0 }) => {
   const domRef = useRef();
 
   useEffect(() => {
+    const currentRef = domRef.current;
     const observer = new IntersectionObserver((entries) => {
       entries.forEach((entry) => {
         if (entry.isIntersecting) {
@@ -27,8 +28,8 @@ const FadeIn = ({ children, delay = 0 }) => {
         }
       });
     });
-    if (domRef.current) observer.observe(domRef.current);
-    return () => domRef.current && observer.unobserve(domRef.current);
+    if (currentRef) observer.observe(currentRef);
+    return () => currentRef && observer.unobserve(currentRef);
   }, []);
 
   return (
